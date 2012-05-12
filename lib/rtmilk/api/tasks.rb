@@ -71,6 +71,7 @@ class Task
    def url; @taskseries['url']; end
    def created; @taskseries['created']; end
    def source; @taskseries['source']; end
+   def rrule; @taskseries['rrule']; end
 
    # find a Task by name.
    def Task.find(arg)
