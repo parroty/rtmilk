@@ -75,14 +75,14 @@ class Task
 
    # find a Task by name.
    def Task.find(arg)
-      all_tasks(arg[:list]).find do |task|
+      all_tasks(arg).find do |task|
          task.name =~ /#{arg[:name]}/
       end
    end
 
    # find all tasks by list, and name
    def Task.find_all(arg)
-      tasks = all_tasks(arg[:list])
+      tasks = all_tasks(arg)
       if arg.has_key? :name
          tasks.find_all do |task|
             task['name'] =~ /#{arg[:name]}/
@@ -93,8 +93,8 @@ class Task
    end
 
 private
-   def Task.all_tasks(list = nil)
-      result = RTM::Tasks::GetList.new(RTM::API.token, list).invoke
+   def Task.all_tasks(arg)
+      result = RTM::Tasks::GetList.new(RTM::API.token, arg[:list], arg[:filter], arg[:last_sync]).invoke
       ret = []
 
       result.each do |x|
