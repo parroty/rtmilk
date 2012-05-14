@@ -69,6 +69,17 @@ class Uncomplete < Template
    def method_name; 'rtm.tasks.uncomplete'; end
 end
 
+class SetDueDate < Template
+   def method_name; 'rtm.tasks.setDueDate'; end
+
+   def initialize(token, timeline, list, taskseries, task, due = nil, has_due_time = nil, parse = nil)
+      super token, timeline, list, taskseries, task
+      @param[:due] = due if due
+      @param[:has_due_time] = has_due_time if has_due_time
+      @param[:parse] = parse if parse
+   end
+end
+
 end # Tasks
 
 
@@ -166,6 +177,10 @@ public
       chunks.collect { |chunk| chunk.uncomplete(id, @list) }
    end
 
+   def set_due_date(due = nil, has_due_time = nil, parse = nil)
+      chunks.collect { |chunk| chunk.set_due_date(id, @list, due, has_due_time, parse) }
+   end
+
    def addNote(arg)
       assert_equal(Hash, arg.class)
 
@@ -222,6 +237,10 @@ class Chunk
 
    def uncomplete(series, list)
       RTM::Tasks::Uncomplete.new(RTM::API.token, timeline, list, series, id).invoke
+   end
+
+   def set_due_date(series, list, due = nil, has_due_time = nil, parse = nil)
+      RTM::Tasks::SetDueDate.new(RTM::API.token, timeline, list, series, id, due, has_due_time, parse).invoke
    end
 
 private
