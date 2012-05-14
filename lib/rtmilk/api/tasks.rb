@@ -5,6 +5,27 @@ require 'test/unit/assertions'
 module RTM
 module Tasks
 
+# RTM::Task::BasicAPI
+class BasicAPI < RTM::API
+   def method_name
+      raise RTM::Error, "method name is undefined"  # needs to be overwriten
+   end
+
+   def parse_result(result)
+      super
+      [result['list'].first, result['transaction']]
+   end
+
+   def initialize(token, timeline, list, taskseries, task)
+      super method_name, token
+      @param[:timeline] = timeline
+      @param[:list_id] = list
+      @param[:taskseries_id] = taskseries
+      @param[:task_id] = task
+   end
+end
+
+
 # get all TaskSeries.
 class GetList < RTM::API
    # return [list_id, taskseries*]*
@@ -36,20 +57,17 @@ class Add < RTM::API
    end
 end # Add
 
-class Delete < RTM::API
-   def parse_result(result)
-      super
-      [result['list'].first, result['transaction']]
-   end
+class Delete < BasicAPI
+   def method_name; 'rtm.tasks.delete'; end
+end
 
-   def initialize(token, timeline, list, taskseries, task)
-      super 'rtm.tasks.delete', token
-      @param[:timeline] = timeline
-      @param[:list_id] = list
-      @param[:taskseries_id] = taskseries
-      @param[:task_id] = task
-   end
-end # Delete
+class Complete < BasicAPI
+   def method_name; 'rtm.tasks.complete'; end
+end
+
+class Uncomplete < BasicAPI
+   def method_name; 'rtm.tasks.uncomplete'; end
+end
 
 end # Tasks
 
@@ -127,7 +145,7 @@ public
          assert(@list, result['id'])
          create_chunks
          @notes = []
-      else 
+      else
          assert(arg.has_key?(:taskseries))
          @taskseries = arg[:taskseries]
          create_chunks
@@ -140,12 +158,20 @@ public
       chunks.collect { |chunk| chunk.delete(id, @list) }
    end
 
+   def complete
+      chunks.collect { |chunk| chunk.complete(id, @list) }
+   end
+
+   def uncomplete
+      chunks.collect { |chunk| chunk.uncomplete(id, @list) }
+   end
+
    def addNote(arg)
       assert_equal(Hash, arg.class)
 
       n = RTM::Note.new(
          :task => self,
-         :title => arg[:title], 
+         :title => arg[:title],
          :body  => arg[:body])
       @notes.push n
    end
@@ -187,10 +213,22 @@ class Chunk
    end
 
    def delete(series, list)
-      token    = RTM::API.token
-      timeline = RTM::Timeline.new(RTM::API.token).to_s
-      RTM::Tasks::Delete.new(token, timeline, list, series, id).invoke # TODO
+      RTM::Tasks::Delete.new(RTM::API.token, timeline, list, series, id).invoke
    end
+
+   def complete(series, list)
+      RTM::Tasks::Complete.new(RTM::API.token, timeline, list, series, id).invoke
+   end
+
+   def uncomplete(series, list)
+      RTM::Tasks::Uncomplete.new(RTM::API.token, timeline, list, series, id).invoke
+   end
+
+private
+   def timeline
+      RTM::Timeline.new(RTM::API.token).to_s
+   end
+
 end # Chunk
 
 end # RTM
