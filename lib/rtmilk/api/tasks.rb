@@ -5,8 +5,8 @@ require 'test/unit/assertions'
 module RTM
 module Tasks
 
-# RTM::Task::BasicAPI
-class BasicAPI < RTM::API
+private
+class Template < RTM::API
    def method_name
       raise RTM::Error, "method name is undefined"  # needs to be overwriten
    end
@@ -25,7 +25,7 @@ class BasicAPI < RTM::API
    end
 end
 
-
+public
 # get all TaskSeries.
 class GetList < RTM::API
    # return [list_id, taskseries*]*
@@ -57,15 +57,15 @@ class Add < RTM::API
    end
 end # Add
 
-class Delete < BasicAPI
+class Delete < Template
    def method_name; 'rtm.tasks.delete'; end
 end
 
-class Complete < BasicAPI
+class Complete < Template
    def method_name; 'rtm.tasks.complete'; end
 end
 
-class Uncomplete < BasicAPI
+class Uncomplete < Template
    def method_name; 'rtm.tasks.uncomplete'; end
 end
 
