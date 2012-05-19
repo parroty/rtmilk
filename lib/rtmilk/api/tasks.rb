@@ -114,7 +114,7 @@ class Task
       tasks = all_tasks(arg)
       if arg.has_key? :name
          tasks.find_all do |task|
-            task['name'] =~ /#{arg[:name]}/
+            task.name =~ /#{arg[:name]}/
          end
       else
          tasks
