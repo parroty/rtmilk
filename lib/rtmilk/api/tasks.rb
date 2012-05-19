@@ -80,6 +80,34 @@ class SetDueDate < Template
    end
 end
 
+class AddTags < Template
+   def method_name; 'rtm.tasks.addTags'; end
+
+   def initialize(token, timeline, list, taskseries, task, tags)
+      super token, timeline, list, taskseries, task
+      @param[:tags] = tags
+   end
+end
+
+class RemoveTags < Template
+   def method_name; 'rtm.tasks.removeTags'; end
+
+   def initialize(token, timeline, list, taskseries, task, tags)
+      super token, timeline, list, taskseries, task
+      @param[:tags] = tags
+   end
+end
+
+class SetTags < Template
+   def method_name; 'rtm.tasks.setTags'; end
+
+   def initialize(token, timeline, list, taskseries, task, tags = nil)
+      super token, timeline, list, taskseries, task
+      @param[:tags] = tags if tags
+   end
+end
+
+
 end # Tasks
 
 
@@ -181,6 +209,18 @@ public
       chunks.collect { |chunk| chunk.set_due_date(id, @list, due, has_due_time, parse) }
    end
 
+   def add_tags(tags)
+      chunks.collect { |chunk| chunk.add_tags(id, @list, tags) }
+   end
+
+   def remove_tags(tags)
+      chunks.collect { |chunk| chunk.remove_tags(id, @list, tags) }
+   end
+
+   def set_tags(tags = nil)
+      chunks.collect { |chunk| chunk.set_tags(id, @list, tags) }
+   end
+
    def addNote(arg)
       assert_equal(Hash, arg.class)
 
@@ -241,6 +281,18 @@ class Chunk
 
    def set_due_date(series, list, due = nil, has_due_time = nil, parse = nil)
       RTM::Tasks::SetDueDate.new(RTM::API.token, timeline, list, series, id, due, has_due_time, parse).invoke
+   end
+
+   def add_tags(series, list, tags)
+      RTM::Tasks::AddTags.new(RTM::API.token, timeline, list, series, id, tags).invoke
+   end
+
+   def remove_tags(series, list, tags)
+      RTM::Tasks::RemoveTags.new(RTM::API.token, timeline, list, series, id, tags).invoke
+   end
+
+   def set_tags(series, list, tags = nil)
+      RTM::Tasks::SetTags.new(RTM::API.token, timeline, list, series, id, tags).invoke
    end
 
 private
