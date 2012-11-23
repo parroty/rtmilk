@@ -36,6 +36,4 @@ note: variable "task" refers to an instance of "RTM::Task".
 
 ### rtm.tasks.removeTags ###
     task.remove_tags("test_tag1")
-
-### rtm.tasks.removeTags ###
     task.set_tags("test_tag1,test_tag2")
