@@ -16,7 +16,7 @@ module RTM
 class API
 
 private
-   RTM_URI   = 'www.rememberthemilk.com'
+   RTM_URI   = 'api.rememberthemilk.com'
    REST_PATH = '/services/rest/'
    AUTH_PATH = '/services/auth/'
    PERMS = ['read', 'write', 'delete']
@@ -90,7 +90,7 @@ private
    end
 
    def make_url
-      r  = REST_PATH + '?' 
+      r  = REST_PATH + '?'
 
       @param = {} if @param == nil
       @param['method'] = @method
